@@ -1,49 +1,197 @@
-import React from 'react'
+import React, { useState, useContext, useEffect } from 'react'
+import { motion } from 'framer-motion'
+import {
+  Package,
+  ShoppingCart,
+  Activity,
+  Sparkles
+} from 'lucide-react'
 import Nav from '../component/Nav'
 import Sidebar from '../component/Sidebar'
-import { useState } from 'react'
-import { useContext } from 'react'
 import { authDataContext } from '../context/AuthContext'
-import { useEffect } from 'react'
 import axios from 'axios'
 
 function Home() {
-    const [totalProducts, setTotalProducts] = useState(0)
+  const [totalProducts, setTotalProducts] = useState(0)
   const [totalOrders, setTotalOrders] = useState(0)
-  
+
   const { serverUrl } = useContext(authDataContext)
 
- const fetchCounts = async () => {
+  const fetchCounts = async () => {
     try {
-      const products = await axios.get(`${serverUrl}/api/product/list`, {} ,{withCredentials:true})
+      const products = await axios.get(
+        `${serverUrl}/api/product/list`,
+        {},
+        { withCredentials: true }
+      )
       setTotalProducts(products.data.length)
 
-      const orders = await axios.post(`${serverUrl}/api/order/list`, {} ,{withCredentials:true})
+      const orders = await axios.post(
+        `${serverUrl}/api/order/list`,
+        {},
+        { withCredentials: true }
+      )
       setTotalOrders(orders.data.length)
     } catch (err) {
-      console.error("Failed to fetch counts", err)
+      console.error('Failed to fetch counts', err)
     }
   }
 
-   useEffect(() => {
+  useEffect(() => {
     fetchCounts()
   }, [])
+
+  const stats = [
+    {
+      title: 'Total Products',
+      value: totalProducts,
+      icon: Package,
+      description: 'Products available in your catalog'
+    },
+    {
+      title: 'Total Orders',
+      value: totalOrders,
+      icon: ShoppingCart,
+      description: 'Orders placed by customers'
+    }
+  ]
+
   return (
-   
-    <div className='w-[100vw] h-[100vh] bg-gradient-to-l from-[#141414] to-[#0c2025] text-[white] relative'>
-       <Nav/>
-       <Sidebar/>
+    <div className="w-full min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-cyan-950 text-white overflow-x-hidden relative">
+      <Nav />
+      <Sidebar />
 
-       <div className='w-[70vw] h-[100vh] absolute left-[25%] flex items-Start justify-start flex-col  gap-[40px] py-[100px]'>
-         <h1 className='text-[35px] text-[#afe2f2]'>OneCart Admin Panel</h1>
-         <div className='flex items-center justify-start gap-[50px] flex-col md:flex-row'>
-          <div  className='text-[#dcfafd] w-[400px] max-w-[90%] h-[200px] bg-[#0000002e] flex items-center justify-center flex-col gap-[20px] rounded-lg shadow-sm shadow-black backdrop:blur-lg  md:text-[25px] text-[20px] border-[1px] border-[#969595]'>Total No. of Products : <span className='px-[20px] py-[10px] bg-[#030e11] rounded-lg flex items-center justify-center border-[1px] border-[#969595]'>{totalProducts}</span></div>
-          <div  className='text-[#dcfafd] w-[400px] max-w-[90%] h-[200px] bg-[#0000002e] flex items-center justify-center flex-col gap-[20px] rounded-lg shadow-sm shadow-black backdrop:blur-lg  md:text-[25px] text-[20px] border-[1px] border-[#969595]'>Total No. of Orderss : <span className='px-[20px] py-[10px] bg-[#030e11] rounded-lg flex items-center justify-center border-[1px] border-[#969595]'>{totalOrders}</span></div>
+      {/* Background Glow Effects */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-20 left-[-120px] w-96 h-96 bg-cyan-500/10 blur-3xl rounded-full" />
+        <div className="absolute bottom-20 right-[-120px] w-96 h-96 bg-indigo-500/10 blur-3xl rounded-full" />
+      </div>
 
-         </div>
-       </div>
+      {/* Main Content */}
+      <div className="relative z-10 lg:ml-[18%] pt-24 pb-12 px-4 sm:px-6 lg:px-10">
+        <div className="max-w-7xl mx-auto space-y-10">
+          {/* Header */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="
+              backdrop-blur-2xl
+              bg-white/10
+              border border-white/10
+              rounded-[2rem]
+              shadow-2xl
+              p-6 sm:p-8 lg:p-10
+            "
+          >
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+              <div>
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-cyan-500/10 border border-cyan-400/20 text-cyan-300 text-sm font-medium mb-4">
+                  <Sparkles className="w-4 h-4" />
+                  Admin Dashboard
+                </div>
 
-      
+                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-cyan-300 via-white to-indigo-300 bg-clip-text text-transparent">
+                  OneCart Admin Panel
+                </h1>
+
+                <p className="text-slate-300 mt-3 max-w-2xl leading-7">
+                  Monitor your store performance, manage inventory,
+                  and track customer orders from one premium dashboard.
+                </p>
+              </div>
+
+              <motion.div
+                animate={{ rotate: [0, 6, 0] }}
+                transition={{
+                  duration: 4,
+                  repeat: Infinity,
+                  ease: 'easeInOut'
+                }}
+                className="
+                  self-start lg:self-center
+                  w-16 h-16 sm:w-20 sm:h-20
+                  rounded-3xl
+                  bg-gradient-to-br
+                  from-cyan-500
+                  to-indigo-600
+                  shadow-xl
+                  flex items-center justify-center
+                "
+              >
+                <Activity className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
+              </motion.div>
+            </div>
+          </motion.div>
+
+          {/* Stats Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {stats.map((stat, index) => {
+              const Icon = stat.icon
+
+              return (
+                <motion.div
+                  key={stat.title}
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{
+                    duration: 0.6,
+                    delay: index * 0.1
+                  }}
+                  whileHover={{
+                    y: -6,
+                    scale: 1.01
+                  }}
+                  className="
+                    backdrop-blur-2xl
+                    bg-white/10
+                    border border-white/10
+                    rounded-[2rem]
+                    shadow-2xl
+                    p-6 sm:p-8
+                    relative overflow-hidden
+                  "
+                >
+                  {/* Decorative Glow */}
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/10 blur-3xl rounded-full" />
+
+                  <div className="relative z-10 flex flex-col gap-6">
+                    {/* Icon */}
+                    <div
+                      className="
+                        w-16 h-16
+                        rounded-2xl
+                        bg-gradient-to-br
+                        from-cyan-500
+                        to-indigo-600
+                        shadow-lg
+                        flex items-center justify-center
+                      "
+                    >
+                      <Icon className="w-8 h-8 text-white" />
+                    </div>
+
+                    {/* Content */}
+                    <div>
+                      <p className="text-slate-300 text-sm sm:text-base">
+                        {stat.title}
+                      </p>
+
+                      <h2 className="text-4xl sm:text-5xl font-bold text-white mt-2">
+                        {stat.value}
+                      </h2>
+
+                      <p className="text-slate-400 mt-3 text-sm leading-6">
+                        {stat.description}
+                      </p>
+                    </div>
+                  </div>
+                </motion.div>
+              )
+            })}
+          </div>
+        </div>
+      </div>
     </div>
   )
 }

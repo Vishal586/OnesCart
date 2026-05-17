@@ -1,10 +1,12 @@
 import express from 'express'
 import dotenv from 'dotenv'
+// Load environment variables FIRST before any other imports that might use environment variables
+dotenv.config()
+
 import connectDb from './config/db.js'
 import cookieParser from 'cookie-parser'
-import authRoutes from './routes/authRoutes.js'
-dotenv.config()
 import cors from "cors"
+import authRoutes from './routes/authRoutes.js'
 import userRoutes from './routes/userRoutes.js'
 import productRoutes from './routes/productRoutes.js'
 import cartRoutes from './routes/cartRoutes.js'
@@ -30,9 +32,16 @@ app.use("/api/order",orderRoutes)
 
 
 
+// Global error handler for uncaught exceptions
+process.on('uncaughtException', (error) => {
+    console.error('Uncaught Exception:', error);
+});
+
+process.on('unhandledRejection', (error) => {
+    console.error('Unhandled Rejection:', error);
+});
+
 app.listen(port,()=>{
-    console.log("Hello From Server")
+    console.log(`Server running on port ${port}`);
     connectDb()
 })
-
-

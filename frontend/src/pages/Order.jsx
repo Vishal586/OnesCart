@@ -1,21 +1,28 @@
 import React, { useContext, useEffect, useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import Title from '../component/Title'
 import { shopDataContext } from '../context/ShopContext'
 import { authDataContext } from '../context/authContext'
 import axios from 'axios'
 
 function Order() {
-    let [orderData,setOrderData] = useState([])
-    let {currency} = useContext(shopDataContext)
-    let {serverUrl} = useContext(authDataContext)
+  let [orderData, setOrderData] = useState([])
+  let { currency } = useContext(shopDataContext)
+  let { serverUrl } = useContext(authDataContext)
 
-    const loadOrderData = async () => {
-       try {
-      const result = await axios.post(serverUrl + '/api/order/userorder',{},{withCredentials:true})
-      if(result.data){
+  const loadOrderData = async () => {
+    try {
+      const result = await axios.post(
+        serverUrl + '/api/order/userorder',
+        {},
+        { withCredentials: true }
+      )
+
+      if (result.data) {
         let allOrdersItem = []
-        result.data.map((order)=>{
-          order.items.map((item)=>{
+
+        result.data.map((order) => {
+          order.items.map((item) => {
             item['status'] = order.status
             item['payment'] = order.payment
             item['paymentMethod'] = order.paymentMethod
@@ -23,59 +30,196 @@ function Order() {
             allOrdersItem.push(item)
           })
         })
+
         setOrderData(allOrdersItem.reverse())
       }
     } catch (error) {
       console.log(error)
     }
+  }
+
+  useEffect(() => {
+    loadOrderData()
+  }, [])
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.08
+      }
     }
+  }
 
-useEffect(()=>{
- loadOrderData()
-},[])
-
+  const itemVariants = {
+    hidden: {
+      opacity: 0,
+      y: 30
+    },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.45,
+        ease: "easeOut"
+      }
+    }
+  }
 
   return (
-    <div className='w-[99vw] min-h-[100vh] p-[20px] pb-[150px]  overflow-hidden bg-gradient-to-l from-[#141414] to-[#0c2025] '>
-      <div className='h-[8%] w-[100%] text-center mt-[80px]'>
-        <Title text1={'MY'} text2={'ORDER'} />
+    <div className="w-full min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-cyan-950 pt-[90px] pb-24 overflow-x-hidden">
+      {/* Background Glow */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-24 left-[-100px] w-72 h-72 bg-cyan-500/10 blur-3xl rounded-full" />
+        <div className="absolute bottom-24 right-[-100px] w-72 h-72 bg-indigo-500/10 blur-3xl rounded-full" />
       </div>
-      <div className=' w-[100%] h-[92%] flex flex-wrap gap-[20px]'>
-        {
-         orderData.map((item,index)=>(
-            <div key={index} className='w-[100%] h-[10%] border-t border-b '>
-                <div className='w-[100%] h-[80%] flex items-start gap-6 bg-[#51808048]  py-[10px] px-[20px] rounded-2xl relative '>
-                    <img src={item.image1} alt="" className='w-[130px] h-[130px] rounded-md '/>
-                    <div className='flex items-start justify-center flex-col gap-[5px]'>
-                    <p className='md:text-[25px] text-[20px] text-[#f3f9fc]'>{item.name}</p>
-                    <div className='flex items-center gap-[8px]   md:gap-[20px]'>
-                        <p className='md:text-[18px] text-[12px] text-[#aaf4e7]'>{currency} {item.price}</p>
-                      <p className='md:text-[18px] text-[12px] text-[#aaf4e7]'>Quantity: {item.quantity}</p>
-                      <p className='md:text-[18px] text-[12px] text-[#aaf4e7]'>Size: {item.size}</p>
-                    </div>
-                    <div className='flex items-center'>
-                     <p className='md:text-[18px] text-[12px] text-[#aaf4e7]'>Date: <span className='text-[#e4fbff] pl-[10px] md:text-[16px] text-[11px]'>{new Date(item.date).toDateString()}</span></p>
-                    </div>
-                    <div className='flex items-center'>
-                      <p className='md:text-[16px] text-[12px] text-[#aaf4e7]'>Payment Method :{item.paymentMethod}</p>
-                    </div>
-                    <div className='absolute md:left-[55%] md:top-[40%] right-[2%] top-[2%]  '>
-                        <div className='flex items-center gap-[5px]'>
-                      <p className='min-w-2 h-2 rounded-full bg-green-500'></p> 
-                      <p className='md:text-[17px] text-[10px] text-[#f3f9fc]'>{item.status}</p>
 
-                    </div>
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Page Title */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-12"
+        >
+          <Title text1={'MY'} text2={'ORDER'} />
+        </motion.div>
 
+        {/* Orders List */}
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="space-y-6"
+        >
+          <AnimatePresence>
+            {orderData.map((item, index) => (
+              <motion.div
+                key={`${item._id || item.name}-${index}`}
+                variants={itemVariants}
+                layout
+                whileHover={{ y: -4 }}
+                className="
+                                    backdrop-blur-2xl
+                                    bg-white/10
+                                    border
+                                    border-white/10
+                                    rounded-3xl
+                                    shadow-2xl
+                                    p-4 sm:p-6
+                                "
+              >
+                <div className="flex flex-col lg:flex-row lg:items-center gap-6">
+                  {/* Product Image & Details */}
+                  <div className="flex items-start gap-4 sm:gap-6 flex-1">
+                    <motion.img
+                      whileHover={{ scale: 1.05 }}
+                      src={item.image1}
+                      alt={item.name}
+                      className="
+                                                w-24 h-24 sm:w-32 sm:h-32
+                                                object-cover
+                                                rounded-2xl
+                                                shadow-lg
+                                                border border-white/10
+                                            "
+                    />
+
+                    <div className="flex flex-col gap-3">
+                      <h3 className="text-lg sm:text-2xl font-semibold text-white leading-tight">
+                        {item.name}
+                      </h3>
+
+                      <div className="flex flex-wrap items-center gap-3 text-sm sm:text-base">
+                        <p className="text-cyan-300 font-semibold">
+                          {currency} {item.price}
+                        </p>
+                        <p className="text-slate-300">
+                          Quantity: {item.quantity}
+                        </p>
+                        <p className="text-slate-300">
+                          Size: {item.size}
+                        </p>
+                      </div>
+
+                      <p className="text-slate-400 text-sm">
+                        Date:{" "}
+                        <span className="text-slate-200">
+                          {new Date(item.date).toDateString()}
+                        </span>
+                      </p>
+
+                      <p className="text-slate-400 text-sm">
+                        Payment Method:{" "}
+                        <span className="text-slate-200">
+                          {item.paymentMethod}
+                        </span>
+                      </p>
                     </div>
-                     <div className='absolute md:right-[5%] right-[1%] md:top-[40%] top-[70%]'> 
-                    <button className='md:px-[15px] px-[5px] py-[3px] md:py-[7px] rounded-md bg-[#101919] text-[#f3f9fc] text-[12px] md:text-[16px] cursor-pointe active:bg-slate-500' onClick={loadOrderData} >Track Order</button>
                   </div>
+
+                  {/* Status + Track Button */}
+                  <div className="flex flex-col sm:flex-row lg:flex-col items-start sm:items-center lg:items-end gap-4 lg:min-w-[180px]">
+                    {/* Status */}
+                    <div className="flex items-center gap-2">
+                      <span className="w-3 h-3 rounded-full bg-emerald-400 shadow-lg shadow-emerald-400/40" />
+                      <span className="text-white font-medium text-sm sm:text-base">
+                        {item.status}
+                      </span>
                     </div>
+
+                    {/* Track Order Button */}
+                    <motion.button
+                      whileHover={{
+                        scale: 1.03,
+                        boxShadow:
+                          '0 0 30px rgba(34, 211, 238, 0.25)'
+                      }}
+                      whileTap={{ scale: 0.97 }}
+                      onClick={loadOrderData}
+                      className="
+                                                px-5 py-3
+                                                rounded-2xl
+                                                bg-gradient-to-r
+                                                from-cyan-500
+                                                to-indigo-600
+                                                text-white
+                                                font-semibold
+                                                text-sm
+                                                shadow-lg
+                                                transition-all
+                                                duration-300
+                                            "
+                    >
+                      Track Order
+                    </motion.button>
+                  </div>
                 </div>
-               
-            </div>
-         ))
-        }
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </motion.div>
+
+        {/* Empty State */}
+        {orderData.length === 0 && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="
+                            mt-10
+                            backdrop-blur-2xl
+                            bg-white/5
+                            border border-white/10
+                            rounded-3xl
+                            p-10
+                            text-center
+                            text-slate-300
+                        "
+          >
+            No orders found.
+          </motion.div>
+        )}
       </div>
     </div>
   )

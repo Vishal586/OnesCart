@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import Title from '../component/Title'
 import { shopDataContext } from '../context/ShopContext'
 import { useNavigate } from 'react-router-dom'
@@ -6,78 +7,279 @@ import { RiDeleteBin6Line } from "react-icons/ri";
 import CartTotal from '../component/CartTotal';
 
 function Cart() {
-    const { products, currency, cartItem ,updateQuantity } = useContext(shopDataContext)
-  const [cartData, setCartData] = useState([])
-  const navigate = useNavigate()
+    const { products, currency, cartItem, updateQuantity } = useContext(shopDataContext)
+    const [cartData, setCartData] = useState([])
+    const navigate = useNavigate()
 
-
-  useEffect(() => {
-    const tempData = [];
-    for (const items in cartItem) {
-      for (const item in cartItem[items]) {
-        if (cartItem[items][item] > 0) {
-          tempData.push({
-            _id: items,
-            size: item,
-            quantity: cartItem[items][item],
-          });
+    useEffect(() => {
+        const tempData = [];
+        for (const items in cartItem) {
+            for (const item in cartItem[items]) {
+                if (cartItem[items][item] > 0) {
+                    tempData.push({
+                        _id: items,
+                        size: item,
+                        quantity: cartItem[items][item],
+                    });
+                }
+            }
         }
-      }
-    }
-    setCartData(tempData); 
+        setCartData(tempData);
+    }, [cartItem]);
 
-  }, [cartItem]);
-  return (
-    <div className='w-[99vw] min-h-[100vh] p-[20px] overflow-hidden bg-gradient-to-l from-[#141414] to-[#0c2025] '>
-      <div className='h-[8%] w-[100%] text-center mt-[80px]'>
-        <Title text1={'YOUR'} text2={'CART'} />
-      </div>
-
-      <div className='w-[100%] h-[92%] flex flex-wrap gap-[20px]'>
-        {
-         cartData.map((item,index)=>{
-             const productData = products.find((product) => product._id === item._id);
-            
-             return (
-              <div key={index} className='w-[100%] h-[10%] border-t border-b  '>
-                <div className='w-[100%] h-[80%] flex items-start gap-6 bg-[#51808048]  py-[10px] px-[20px] rounded-2xl relative '>
-                    <img className='w-[100px] h-[100px] rounded-md ' src={productData.image1} alt="" />
-                    <div className='flex items-start justify-center flex-col gap-[10px]'>
-                    <p className='md:text-[25px] text-[20px] text-[#f3f9fc]'>{productData.name}</p>
-                    <div className='flex items-center   gap-[20px]'>
-                      <p className='text-[20px] text-[#aaf4e7]'>{currency} {productData.price}</p>
-                      <p className='w-[40px] h-[40px] text-[16px] text-[white] 
-                      bg-[#518080b4] rounded-md mt-[5px] flex items-center justify-center border-[1px] border-[#9ff9f9]'>{item.size}</p>
-                </div>
-                </div>
-                <input type="number" min={1} defaultValue={item.quantity} className=' md:max-w-20 max-w-10 md:px-2 md:py-2 py-[5px] px-[10px] text-[white] text-[18px] font-semibold bg-[#518080b4] absolute md:top-[40%] top-[46%] left-[75%] md:left-[50%] border-[1px] border-[#9ff9f9] rounded-md '  onChange={(e)=> (e.target.value === ' ' || e.target.value === '0') ? null  :  updateQuantity(item._id,item.size,Number(e.target.value))} />
-
-                <RiDeleteBin6Line  className='text-[#9ff9f9] w-[25px] h-[25px] absolute top-[50%] md:top-[40%] md:right-[5%] right-1' onClick={()=>updateQuantity(item._id,item.size,0)}/>
-                </div>
- 
-              </div>
-             )
-         })
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        visible: {
+            opacity: 1,
+            transition: {
+                staggerChildren: 0.08
+            }
         }
-      </div>
-
-      <div className='flex justify-start items-end my-20'>
-        <div className='w-full sm:w-[450px]'>
-            <CartTotal/>
-            <button className='text-[18px] hover:bg-slate-500 cursor-pointer bg-[#51808048] py-[10px] px-[50px] rounded-2xl text-white flex items-center justify-center gap-[20px]  border-[1px] border-[#80808049] ml-[30px] mt-[20px]' onClick={()=>{
-                if (cartData.length > 0) {
-      navigate("/placeorder");
-    } else {
-      console.log("Your cart is empty!");
     }
-            }}>
-                PROCEED TO CHECKOUT
-            </button>
+
+    const itemVariants = {
+        hidden: { opacity: 0, y: 30 },
+        visible: {
+            opacity: 1,
+            y: 0,
+            transition: {
+                duration: 0.45,
+                ease: "easeOut"
+            }
+        },
+        exit: {
+            opacity: 0,
+            y: -20,
+            transition: {
+                duration: 0.25
+            }
+        }
+    }
+
+    return (
+        <div className="w-full min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-cyan-950 pt-[90px] pb-24 overflow-x-hidden">
+            {/* Background Glow */}
+            <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                <div className="absolute top-24 left-[-100px] w-72 h-72 bg-cyan-500/10 blur-3xl rounded-full" />
+                <div className="absolute bottom-24 right-[-100px] w-72 h-72 bg-indigo-500/10 blur-3xl rounded-full" />
+            </div>
+
+            <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                {/* Page Title */}
+                <motion.div
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6 }}
+                    className="text-center mb-12"
+                >
+                    <Title text1={'YOUR'} text2={'CART'} />
+                </motion.div>
+
+                {/* Cart Items */}
+                <motion.div
+                    variants={containerVariants}
+                    initial="hidden"
+                    animate="visible"
+                    className="space-y-6"
+                >
+                    <AnimatePresence>
+                        {cartData.map((item, index) => {
+                            const productData = products.find(
+                                (product) => product._id === item._id
+                            );
+
+                            if (!productData) return null;
+
+                            return (
+                                <motion.div
+                                    key={`${item._id}-${item.size}`}
+                                    variants={itemVariants}
+                                    exit="exit"
+                                    layout
+                                    whileHover={{ y: -4 }}
+                                    className="
+                                        backdrop-blur-2xl
+                                        bg-white/10
+                                        border
+                                        border-white/10
+                                        rounded-3xl
+                                        shadow-2xl
+                                        p-4 sm:p-6
+                                    "
+                                >
+                                    <div className="flex flex-col lg:flex-row lg:items-center gap-6">
+                                        {/* Product Info */}
+                                        <div className="flex items-start gap-4 sm:gap-6 flex-1">
+                                            <motion.img
+                                                whileHover={{ scale: 1.05 }}
+                                                src={productData.image1}
+                                                alt={productData.name}
+                                                className="
+                                                    w-24 h-24 sm:w-28 sm:h-28
+                                                    object-cover
+                                                    rounded-2xl
+                                                    shadow-lg
+                                                    border border-white/10
+                                                "
+                                            />
+
+                                            <div className="flex flex-col gap-3">
+                                                <h3 className="text-lg sm:text-2xl font-semibold text-white leading-tight">
+                                                    {productData.name}
+                                                </h3>
+
+                                                <div className="flex flex-wrap items-center gap-3">
+                                                    <p className="text-cyan-300 font-bold text-lg sm:text-xl">
+                                                        {currency} {productData.price}
+                                                    </p>
+
+                                                    <span className="
+                                                        px-4 py-2
+                                                        rounded-xl
+                                                        bg-white/10
+                                                        border border-white/10
+                                                        text-white
+                                                        font-medium
+                                                        text-sm
+                                                    ">
+                                                        Size: {item.size}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Quantity + Delete */}
+                                        <div className="flex items-center justify-between lg:justify-end gap-4 sm:gap-6">
+                                            <input
+                                                type="number"
+                                                min={1}
+                                                defaultValue={item.quantity}
+                                                className="
+                                                    w-20 sm:w-24
+                                                    h-12
+                                                    px-3
+                                                    rounded-2xl
+                                                    bg-white/10
+                                                    border border-white/10
+                                                    text-white
+                                                    font-semibold
+                                                    text-center
+                                                    outline-none
+                                                    focus:ring-2
+                                                    focus:ring-cyan-400
+                                                "
+                                                onChange={(e) =>
+                                                    (e.target.value === ' ' ||
+                                                        e.target.value === '0')
+                                                        ? null
+                                                        : updateQuantity(
+                                                            item._id,
+                                                            item.size,
+                                                            Number(e.target.value)
+                                                        )
+                                                }
+                                            />
+
+                                            <motion.button
+                                                whileHover={{
+                                                    scale: 1.08,
+                                                    rotate: 3
+                                                }}
+                                                whileTap={{ scale: 0.92 }}
+                                                onClick={() =>
+                                                    updateQuantity(
+                                                        item._id,
+                                                        item.size,
+                                                        0
+                                                    )
+                                                }
+                                                className="
+                                                    w-12 h-12
+                                                    rounded-2xl
+                                                    bg-red-500/10
+                                                    border border-red-400/20
+                                                    text-red-300
+                                                    flex items-center justify-center
+                                                    hover:bg-red-500/20
+                                                    transition
+                                                "
+                                            >
+                                                <RiDeleteBin6Line className="w-5 h-5" />
+                                            </motion.button>
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            )
+                        })}
+                    </AnimatePresence>
+                </motion.div>
+
+                {/* Empty Cart State */}
+                {cartData.length === 0 && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="
+                            mt-10
+                            backdrop-blur-2xl
+                            bg-white/5
+                            border border-white/10
+                            rounded-3xl
+                            p-10
+                            text-center
+                            text-slate-300
+                        "
+                    >
+                        Your cart is empty.
+                    </motion.div>
+                )}
+
+                {/* Cart Total & Checkout */}
+                <motion.div
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.2 }}
+                    className="mt-14 flex justify-end"
+                >
+                    <div className="w-full max-w-md backdrop-blur-2xl bg-white/10 border border-white/10 rounded-3xl shadow-2xl p-6 sm:p-8">
+                        <CartTotal />
+
+                        <motion.button
+                            whileHover={{
+                                scale: 1.02,
+                                boxShadow: "0 0 30px rgba(34, 211, 238, 0.25)"
+                            }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={() => {
+                                if (cartData.length > 0) {
+                                    navigate("/placeorder");
+                                } else {
+                                    console.log("Your cart is empty!");
+                                }
+                            }}
+                            className="
+                                w-full
+                                mt-6
+                                py-4
+                                rounded-2xl
+                                bg-gradient-to-r
+                                from-cyan-500
+                                to-indigo-600
+                                text-white
+                                font-semibold
+                                text-sm sm:text-base
+                                shadow-lg
+                                transition-all
+                                duration-300
+                            "
+                        >
+                            PROCEED TO CHECKOUT
+                        </motion.button>
+                    </div>
+                </motion.div>
+            </div>
         </div>
-      </div>
-      
-    </div>
-  )
+    )
 }
 
 export default Cart
