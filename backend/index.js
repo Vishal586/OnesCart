@@ -29,8 +29,9 @@ app.use("/api/product",productRoutes)
 app.use("/api/cart",cartRoutes)
 app.use("/api/order",orderRoutes)
 
-
-
+app.get("/", (req, res) => {
+  res.send("OneCart Backend API is running successfully 🚀");
+});
 
 // Global error handler for uncaught exceptions
 process.on('uncaughtException', (error) => {
