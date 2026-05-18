@@ -11,6 +11,7 @@ import { auth, provider } from '../../utils/Firebase';
 import { userDataContext } from '../context/UserContext';
 import Loading from '../component/Loading';
 import { motion, AnimatePresence } from "framer-motion";
+import { toast } from 'react-toastify';
 
 function Login() {
     let [show, setShow] = useState(false)
