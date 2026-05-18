@@ -23,14 +23,14 @@ export const registration = async (req,res) => {
     let token = await genToken(user._id)
     res.cookie("token",token,{
         httpOnly:true,
-        secure:true,
-        sameSite: "none",
+        secure:false,
+        sameSite: "Strict",
         maxAge: 7 * 24 * 60 * 60 * 1000
     })
     return res.status(201).json(user)
   } catch (error) {
-    console.log("registration error")
-    return res.status(500).json({message:`registration error ${error}`})
+    console.error("registration error:", error);
+    return res.status(500).json({message:`registration error: ${error.message}`})
   }
     
 }
@@ -50,15 +50,15 @@ export const login = async (req,res) => {
         let token = await genToken(user._id)
         res.cookie("token",token,{
         httpOnly:true,
-        secure:true,
-        sameSite: "none",
+        secure:false,
+        sameSite: "Strict",
         maxAge: 7 * 24 * 60 * 60 * 1000
     })
     return res.status(201).json(user)
 
     } catch (error) {
-         console.log("login error")
-    return res.status(500).json({message:`Login error ${error}`})
+         console.error("login error:", error);
+    return res.status(500).json({message:`Login error: ${error.message}`})
         
     }
     
@@ -68,8 +68,8 @@ try {
     res.clearCookie("token")
     return res.status(200).json({message:"logOut successful"})
 } catch (error) {
-    console.log("logOut error")
-    return res.status(500).json({message:`LogOut error ${error}`})
+    console.error("logOut error:", error);
+    return res.status(500).json({message:`LogOut error: ${error.message}`})
 }
     
 }
@@ -88,8 +88,8 @@ export const googleLogin = async (req,res) => {
         let token = await genToken(user._id)
         res.cookie("token",token,{
         httpOnly:true,
-        secure:true,
-        sameSite: "false",
+        secure:false,
+        sameSite: "Strict",
         maxAge: 7 * 24 * 60 * 60 * 1000
     })
     return res.status(200).json(user)
@@ -109,8 +109,8 @@ export const adminLogin = async (req,res) => {
         let token = await genToken1(email)
         res.cookie("token",token,{
         httpOnly:true,
-        secure:true,
-        sameSite: "false",
+        secure:false,
+        sameSite: "Strict",
         maxAge: 1 * 24 * 60 * 60 * 1000
     })
     return res.status(200).json(token)
@@ -124,4 +124,3 @@ export const adminLogin = async (req,res) => {
     }
     
 }
-
